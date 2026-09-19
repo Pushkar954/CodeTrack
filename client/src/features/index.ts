@@ -1,2 +1,1 @@
-export { default as apiClient } from '../services/apiClient';
-export * from '../types/routes';
+export { useClerkAuth, SignInButton, ClerkProviderWrapper } from './auth/authContext';
