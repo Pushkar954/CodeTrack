@@ -81,6 +81,7 @@ goalforge-ai/
 - Node.js v18+
 - MongoDB (local or MongoDB Atlas)
 - npm or yarn
+- A Clerk application (create at [Clerk Dashboard](https://dashboard.clerk.com))
 
 ## Local Setup
 
@@ -96,6 +97,11 @@ npm run install:all
 cp .env.example .env
 # Edit .env with your credentials
 
+# Set up Clerk
+# 1. Create a Clerk application at https://dashboard.clerk.com
+# 2. Copy the Secret Key and Publishable Key
+# 3. Add CLERK_SECRET_KEY and VITE_CLERK_PUBLISHABLE_KEY to .env
+
 # Start the development server
 npm run dev
 ```
@@ -103,6 +109,45 @@ npm run dev
 The app will be available at:
 - **Client**: http://localhost:3000
 - **API**: http://localhost:5000/api/v1
+
+## Authentication Architecture
+
+GoalForge AI uses **Clerk** for authentication. Clerk handles identity, sessions, and sign-in/sign-up flows. The backend verifies Clerk JWT tokens on every request.
+
+### How Authentication Works
+
+1. **Frontend**: Clerk React SDK provides `ClerkProvider`, `useAuth`, `SignIn`, and `SignUp` components
+2. **Client-side**: User signs in via Clerk's pre-built SignIn/SignUp pages
+3. **API Requests**: Frontend sends Clerk JWT token in the `Authorization: Bearer <token>` header
+4. **Backend**: `clerkMiddleware()` verifies the JWT and attaches `req.auth`
+5. **User Lookup**: `authenticateRequest` middleware maps `req.auth.userId` to the MongoDB User by `clerkUserId`
+6. **Authorization**: `req.user` contains the authenticated application user
+
+### Clerk to MongoDB Mapping
+
+- **Clerk**: Manages identity, authentication, sessions
+- **MongoDB User**: Stores application-specific data linked by `clerkUserId`
+  - `clerkUserId` (unique index): Links to Clerk user ID
+  - `name`, `email`, `profileImage`: Synced from Clerk on first sign-in
+
+### Required Environment Variables
+
+| Variable | Side | Description |
+|----------|------|-------------|
+| `CLERK_SECRET_KEY` | Server | Clerk secret key for JWT verification |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Client | Clerk publishable key for ClerkProvider |
+
+### Protected Routes
+
+- Unauthenticated users are redirected to `/sign-in`
+- `/tasks` and `/tasks/new` require authentication
+- Backend endpoints return `401` for unauthenticated requests
+
+### API Endpoints
+
+- `GET /api/v1/auth/me` - Returns the authenticated user
+- `GET /api/v1/tasks` - Lists user's tasks (requires auth)
+- `POST /api/v1/tasks` - Creates a new task (requires auth)
 
 ## Development Commands
 

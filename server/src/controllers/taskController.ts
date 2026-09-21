@@ -5,7 +5,7 @@ import { NotFoundError } from '../errors/appError.js';
 export class TaskController {
   async getTasks(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).clerkUser.clerkUserId;
+      const userId = (req as any).user?.clerkUserId;
       const { topic, difficulty, priority, status, search, sortBy, sortOrder } = req.query;
 
       const filter: any = { userId };
@@ -41,7 +41,7 @@ export class TaskController {
 
   async createTask(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).clerkUser.clerkUserId;
+      const userId = (req as any).user?.clerkUserId;
       const taskData = { ...req.body, userId };
       const task = await Task.create(taskData);
       res.status(201).json({ success: true, data: task });
@@ -52,7 +52,7 @@ export class TaskController {
 
   async getTaskById(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).clerkUser.clerkUserId;
+      const userId = (req as any).user?.clerkUserId;
       const task = await Task.findOne({ _id: req.params.id, userId }).lean();
       if (!task) throw new NotFoundError('Task not found');
       res.status(200).json({ success: true, data: task });
@@ -63,7 +63,7 @@ export class TaskController {
 
   async updateTask(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).clerkUser.clerkUserId;
+      const userId = (req as any).user?.clerkUserId;
       const task = await Task.findOneAndUpdate(
         { _id: req.params.id, userId },
         req.body,
@@ -78,7 +78,7 @@ export class TaskController {
 
   async deleteTask(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).clerkUser.clerkUserId;
+      const userId = (req as any).user?.clerkUserId;
       const task = await Task.findOneAndDelete({ _id: req.params.id, userId });
       if (!task) throw new NotFoundError('Task not found');
       res.status(200).json({ success: true, data: { message: 'Task deleted' } });
@@ -89,7 +89,7 @@ export class TaskController {
 
   async updateTaskStatus(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).clerkUser.clerkUserId;
+      const userId = (req as any).user?.clerkUserId;
       const { status } = req.body;
       const task = await Task.findOneAndUpdate(
         { _id: req.params.id, userId },

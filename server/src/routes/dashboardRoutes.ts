@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { clerkAuthMiddleware } from '../middleware/clerkAuth.js';
+import { authenticateRequest } from '../middleware/clerkAuth.js';
 import { DashboardController } from '../controllers/dashboardController.js';
 
 const router = Router();
 const dashboardController = new DashboardController();
 
-router.use(clerkAuthMiddleware);
+router.use(authenticateRequest);
 
 router.get('/stats', dashboardController.getStats.bind(dashboardController));
 

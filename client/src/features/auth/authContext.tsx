@@ -1,15 +1,24 @@
 import React from 'react';
+import { ClerkProvider, useAuth } from '@clerk/react';
+import { SignInButton, SignOutButton } from '@clerk/react';
 
-export function useClerkAuth() {
-  const userId = localStorage.getItem('clerk_user_id');
-  const isSignedIn = !!userId;
-  return { userId, isSignedIn, isLoaded: true };
+export { SignInButton, SignOutButton };
+export const useClerkAuth = useAuth;
+
+interface ClerkProviderWrapperProps {
+  children: React.ReactNode;
 }
 
-export function SignInButton() {
-  return null;
-}
+export const ClerkProviderWrapper: React.FC<ClerkProviderWrapperProps> = ({ children }) => {
+  const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '';
 
-export const ClerkProviderWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <>{children}</>;
+  if (!publishableKey) {
+    return <>{children}</>;
+  }
+
+  return (
+    <ClerkProvider publishableKey={publishableKey}>
+      {children}
+    </ClerkProvider>
+  );
 };

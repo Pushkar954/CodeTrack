@@ -1,0 +1,10 @@
+import React from 'react';
+import { SignUp } from '@clerk/react';
+
+export const SignUpPage: React.FC = () => {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <SignUp />
+    </div>
+  );
+};

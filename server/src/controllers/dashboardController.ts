@@ -4,7 +4,7 @@ import { Task } from '../models/Task.js';
 export class DashboardController {
   async getStats(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).clerkUser.clerkUserId;
+      const userId = (req as any).user?.clerkUserId;
 
       const total = await Task.countDocuments({ userId });
       const completed = await Task.countDocuments({ userId, status: 'Completed' });

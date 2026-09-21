@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { rateLimiter } from './middleware/rateLimiter.js';
+import { clerkAuth } from './middleware/clerkAuth.js';
 import { setupRoutes } from './routes/index.js';
 
 const app = express();
@@ -27,6 +28,7 @@ export async function startServer(): Promise<void> {
     }
 
     app.use(requestLogger);
+    app.use(clerkAuth);
     app.use('/api', rateLimiter);
     app.use('/api/v1', setupRoutes());
 

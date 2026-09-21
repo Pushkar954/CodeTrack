@@ -6,6 +6,8 @@ import { TaskManager } from '../pages/TaskManager';
 import { TaskForm } from '../components/tasks/TaskForm';
 import { Navbar } from '../layouts/Navbar';
 import { Footer } from '../layouts/Footer';
+import { SignInPage } from '../pages/SignIn';
+import { SignUpPage } from '../pages/SignUp';
 import apiClient from '../services/apiClient';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -38,8 +40,10 @@ export const Router: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<><Navbar /><Dashboard /><Footer /></>} />
-      <Route path="/tasks" element={isSignedIn ? <><Navbar /><TaskManager /><Footer /></> : <Navigate to="/" replace />} />
-      <Route path="/tasks/new" element={isSignedIn ? <><Navbar /><TaskFormWrapper /><Footer /></> : <Navigate to="/" replace />} />
+      <Route path="/sign-in" element={!isSignedIn ? <SignInPage /> : <Navigate to="/" replace />} />
+      <Route path="/sign-up" element={!isSignedIn ? <SignUpPage /> : <Navigate to="/" replace />} />
+      <Route path="/tasks" element={isSignedIn ? <><Navbar /><TaskManager /><Footer /></> : <Navigate to="/sign-in" replace />} />
+      <Route path="/tasks/new" element={isSignedIn ? <><Navbar /><TaskFormWrapper /><Footer /></> : <Navigate to="/sign-in" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

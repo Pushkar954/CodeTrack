@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import { clerkAuthMiddleware } from '../middleware/clerkAuth.js';
+import { authenticateRequest } from '../middleware/clerkAuth.js';
 import { TaskController } from '../controllers/taskController.js';
 
 const router = Router();
 const taskController = new TaskController();
 
-router.use(clerkAuthMiddleware);
-
-router.use(clerkAuthMiddleware);
+router.use(authenticateRequest);
 
 router.route('/')
   .get(taskController.getTasks.bind(taskController))

@@ -1,2 +1,2 @@
-import { useClerkAuth, SignInButton } from '../auth/authContext';
-export { useClerkAuth, SignInButton };
+export { useClerkAuth, ClerkProviderWrapper } from './authContext';
+export { SignInButton, SignOutButton } from '@clerk/react';
