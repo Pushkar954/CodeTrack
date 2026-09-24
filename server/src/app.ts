@@ -6,9 +6,12 @@ import { config } from './config/config.js';
 import { connectDB, closeDB } from './config/db.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
-import { requestLogger } from './middleware/requestLogger.js';
-import { rateLimiter } from './middleware/rateLimiter.js';
-import { clerkAuth } from './middleware/clerkAuth.js';
+import { requestIdMiddleware } from './middleware/requestIdMiddleware.js';
+import { structuredLogger } from './middleware/structuredLogger.js';
+import { clerkAuth, authenticateRequest, requireAuthenticated } from './middleware/clerkAuth.js';
+import { corsMiddleware } from './middleware/corsMiddleware.js';
+import { rateLimiterMiddleware } from './middleware/rateLimiterMiddleware.js';
+import { healthLiveness, healthReadiness } from './middleware/healthHandlers.js';
 import { setupRoutes } from './routes/index.js';
 
 const app = express();
@@ -18,8 +21,7 @@ export async function startServer(): Promise<void> {
     await connectDB();
 
     app.use(helmet());
-    app.use(cors({ origin: config.CLIENT_URL, credentials: true }));
-
+    app.use(corsMiddleware);
     app.use(express.json({ limit: '10kb' }));
     app.use(express.urlencoded({ extended: true }));
 
@@ -27,21 +29,18 @@ export async function startServer(): Promise<void> {
       app.use(morgan(config.NODE_ENV === 'development' ? 'dev' : 'combined'));
     }
 
-    app.use(requestLogger);
+    app.use(requestIdMiddleware);
+    app.use(structuredLogger);
     app.use(clerkAuth);
-    app.use('/api', rateLimiter);
-    app.use('/api/v1', setupRoutes());
+    app.use(rateLimiterMiddleware);
 
+    app.get('/api/v1/health/live', healthLiveness);
+    app.get('/api/v1/health/ready', healthReadiness);
     app.get('/api/v1/health', (_req: Request, res: Response) => {
-      res.status(200).json({
-        success: true,
-        data: {
-          status: 'ok',
-          timestamp: new Date().toISOString(),
-          uptime: process.uptime(),
-        },
-      });
+      res.status(200).json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });
     });
+
+    app.use('/api/v1', setupRoutes());
 
     app.use(notFoundHandler);
     app.use(errorHandler);

@@ -1,16 +1,12 @@
-import { Router } from 'express';
-import { UnauthorizedError } from '../errors/appError.js';
+import { Router, Request, Response } from 'express';
+import { requireAuthenticated } from '../middleware/clerkAuth.js';
 import type { IUser } from '../models/User.js';
 
 const router = Router();
 
-router.get('/me', async (req, res) => {
+router.get('/me', requireAuthenticated, async (req: Request, res: Response) => {
   try {
     const user = (req as any).user as IUser;
-
-    if (!user) {
-      throw new UnauthorizedError('Authentication required');
-    }
 
     res.status(200).json({
       success: true,
