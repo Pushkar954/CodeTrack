@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
-import cors from 'cors';
 import morgan from 'morgan';
 import { config } from './config/config.js';
 import { connectDB, closeDB } from './config/db.js';
@@ -8,7 +7,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { requestIdMiddleware } from './middleware/requestIdMiddleware.js';
 import { structuredLogger } from './middleware/structuredLogger.js';
-import { clerkAuth, authenticateRequest, requireAuthenticated } from './middleware/clerkAuth.js';
+import { clerkAuth } from './middleware/clerkAuth.js';
 import { corsMiddleware } from './middleware/corsMiddleware.js';
 import { rateLimiterMiddleware } from './middleware/rateLimiterMiddleware.js';
 import { healthLiveness, healthReadiness } from './middleware/healthHandlers.js';

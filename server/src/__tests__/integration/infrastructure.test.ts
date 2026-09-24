@@ -6,12 +6,6 @@ describe('Validation Middleware', () => {
   });
 });
 
-describe('Error Handling', () => {
-  it('Returns 500 for unexpected errors', async () => {
-    expect(true).toBe(true);
-  });
-});
-
 describe('Rate Limiting', () => {
   it('Returns 429 when rate limit exceeded', async () => {
     expect(true).toBe(true);

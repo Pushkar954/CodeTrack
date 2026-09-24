@@ -1,12 +1,11 @@
-import mongoose, { Schema, model, Document } from 'mongoose';
-import { config } from '../config/config.js';
+import { Schema, model } from 'mongoose';
 
-export interface IUser extends Document {
+export interface IUser {
   clerkUserId: string;
   name: string;
   email: string;
   profileImage?: string;
-  _id: string;
+  _id?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -35,7 +34,6 @@ export class AuthService {
     if (existing) {
       return existing as IUser;
     }
-
     const name = `${clerkData.firstName || ''} ${clerkData.lastName || ''}`.trim() || clerkData.email;
     const newUser = await User.create({
       clerkUserId,

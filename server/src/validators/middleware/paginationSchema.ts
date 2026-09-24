@@ -8,10 +8,3 @@ export const paginationSchema = z.object({
 });
 
 export type PaginationParams = z.infer<typeof paginationSchema>;
-
-export const filterSchema = z.object({
-  search: z.string().optional(),
-  filters: z.record(z.unknown()).optional(),
-});
-
-export type FilterParams = z.infer<typeof filterSchema>;

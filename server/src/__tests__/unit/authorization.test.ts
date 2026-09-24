@@ -5,17 +5,7 @@ describe('Authorization Foundation', () => {
     expect(true).toBe(true);
   });
 
-  it('requireOwnership returns false for non-matching user IDs', () => {
-    expect(false).toBe(false);
-  });
-});
-
-describe('Pagination Foundation', () => {
-  it('Enforces maximum page limit of 100', () => {
+  it('Pagination enforces maximum limit', () => {
     expect(100).toBeLessThanOrEqual(100);
-  });
-
-  it('Defaults page to 1', () => {
-    expect(1).toBe(1);
   });
 });

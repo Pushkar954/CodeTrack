@@ -17,7 +17,7 @@ describe('Health Endpoints', () => {
     expect(true).toBe(true);
   });
 
-  it('Readiness endpoint returns 200 when healthy', () => {
+  it('Readiness endpoint returns 200', () => {
     expect(true).toBe(true);
   });
 });

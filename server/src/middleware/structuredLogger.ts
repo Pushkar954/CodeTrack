@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import { RequestHandler } from 'express';
 import { config } from '../config/config.js';
 
-export function structuredLogger(req: Request, res: Response, next: NextFunction): void {
+export const structuredLogger: RequestHandler = (req, res, next) => {
   const startTime = Date.now();
   const requestId = (req as any).requestId || 'unknown';
 
@@ -15,17 +15,14 @@ export function structuredLogger(req: Request, res: Response, next: NextFunction
       statusCode: res.statusCode,
       duration: `${duration}ms`,
       ip: req.ip,
-      userAgent: req.get('user-agent'),
     };
 
     if (config.LOG_FORMAT === 'json') {
       console.log(JSON.stringify(logEntry));
     } else {
-      console.log(
-        `[${logEntry.timestamp}] ${logEntry.requestId} ${logEntry.method} ${logEntry.url} ${logEntry.statusCode} ${logEntry.duration}`
-      );
+      console.log(`[${logEntry.timestamp}] ${logEntry.requestId} ${logEntry.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
     }
   });
 
   next();
-}
+};
