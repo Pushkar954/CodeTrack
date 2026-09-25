@@ -30,6 +30,13 @@ export const ERROR_CODES = {
   UNKNOWN_ERROR: 'UNKNOWN_ERROR',
   CLERK_AUTH_ERROR: 'CLERK_AUTH_ERROR',
   CLERK_FORBIDDEN_ERROR: 'CLERK_FORBIDDEN_ERROR',
+  GOAL_NOT_FOUND: 'GOAL_NOT_FOUND',
+  GOAL_INVALID_STATE: 'GOAL_INVALID_STATE',
+  GOAL_INVALID_DATES: 'GOAL_INVALID_DATES',
+  GOAL_INVALID_DURATION: 'GOAL_INVALID_DURATION',
+  GOAL_UPDATE_NOT_ALLOWED: 'GOAL_UPDATE_NOT_ALLOWED',
+  GOAL_ALREADY_ARCHIVED: 'GOAL_ALREADY_ARCHIVED',
+  GOAL_DUPLICATE: 'GOAL_DUPLICATE',
 } as const;
 
 export const ERROR_DETAILS = {
@@ -47,4 +54,11 @@ export const ERROR_DETAILS = {
   UNKNOWN_ERROR: 'An unexpected error occurred',
   CLERK_AUTH_ERROR: 'Authentication failed',
   CLERK_FORBIDDEN_ERROR: 'Access denied',
+  GOAL_NOT_FOUND: 'Goal not found',
+  GOAL_INVALID_STATE: 'Invalid status transition for this goal',
+  GOAL_INVALID_DATES: 'End date cannot be before start date',
+  GOAL_INVALID_DURATION: 'Goal duration must be a positive number',
+  GOAL_UPDATE_NOT_ALLOWED: 'This field cannot be modified',
+  GOAL_ALREADY_ARCHIVED: 'Goal is already archived',
+  GOAL_DUPLICATE: 'A similar goal already exists',
 } as const;
