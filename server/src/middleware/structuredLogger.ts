@@ -1,9 +1,13 @@
 import { RequestHandler } from 'express';
-import { config } from '../config/config.js';
+import { AuthRequest } from '../types/auth.js';
 
-export const structuredLogger: RequestHandler = (req, res, next) => {
+export const structuredLogger: RequestHandler = (req: AuthRequest, res, next) => {
   const startTime = Date.now();
-  const requestId = (req as any).requestId || 'unknown';
+  const requestId = req.requestId || 'unknown';
+
+  res.locals.method = req.method;
+  res.locals.route = req.originalUrl;
+  res.locals.requestId = requestId;
 
   res.on('finish', () => {
     const duration = Date.now() - startTime;
@@ -17,10 +21,12 @@ export const structuredLogger: RequestHandler = (req, res, next) => {
       ip: req.ip,
     };
 
-    if (config.LOG_FORMAT === 'json') {
-      console.log(JSON.stringify(logEntry));
+    if (res.statusCode >= 500) {
+      console.error(JSON.stringify({ ...logEntry, level: 'ERROR' }));
+    } else if (res.statusCode >= 400) {
+      console.warn(JSON.stringify({ ...logEntry, level: 'WARN' }));
     } else {
-      console.log(`[${logEntry.timestamp}] ${logEntry.requestId} ${logEntry.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`);
+      console.log(JSON.stringify({ ...logEntry, level: 'INFO' }));
     }
   });
 

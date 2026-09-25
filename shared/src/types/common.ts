@@ -27,10 +27,19 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
-export interface ErrorResponse {
-  success: false;
-  error: {
-    code: string;
-    message: string;
-  };
+export interface ErrorDetail {
+  field: string;
+  message: string;
+}
+
+export interface ErrorMetadata {
+  requestId?: string;
+  method?: string;
+  route?: string;
+  statusCode: number;
+  errorCode: string;
+  timestamp: string;
+  userId?: string;
+  clerkUserId?: string;
+  duration?: string;
 }

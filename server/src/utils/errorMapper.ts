@@ -1,33 +1,30 @@
-import { AppError } from '../errors/appError.js';
-import { ERROR_CODES } from '@goalforge/shared';
+import { DatabaseError, ExternalServiceError, TimeoutError } from '../errors/appError.js';
 import { MongooseError } from 'mongoose';
 
-export function mapDatabaseError(error: unknown): AppError {
+export function mapDatabaseError(error: unknown): DatabaseError {
   if (error instanceof MongooseError) {
-    if ((error as any).code === 11000) {
-      return new AppError(
-        'Resource already exists',
-        409,
-        ERROR_CODES.CONFLICT_ERROR
-      );
+    const mongooseError = error as { code?: number; errors?: Record<string, { message: string }> };
+
+    if (mongooseError.code === 11000) {
+      return new DatabaseError('A database operation failed', { cause: error });
     }
-    if ((error as any).errors) {
-      return new AppError(
-        'Validation failed',
-        400,
-        ERROR_CODES.VALIDATION_ERROR
-      );
+    if (mongooseError.errors) {
+      return new DatabaseError('Validation failed', { cause: error });
     }
-    return new AppError(
-      'Database operation failed',
-      500,
-      ERROR_CODES.DATABASE_ERROR
-    );
+    return new DatabaseError('Database operation failed', { cause: error });
   }
 
-  return new AppError(
-    'Internal server error',
-    500,
-    ERROR_CODES.INTERNAL_ERROR
-  );
+  return new DatabaseError('Internal server error', { cause: error instanceof Error ? error : undefined });
+}
+
+export function mapMongooseCastError(error: { kind?: string; value?: unknown }): DatabaseError {
+  return new DatabaseError(`Invalid ${error.kind || 'identifier'}`, { cause: undefined });
+}
+
+export function mapExternalServiceError(provider: string, operation: string, cause: Error, retryable = true): ExternalServiceError {
+  return new ExternalServiceError('An external service encountered an error', { provider, operation, cause, retryable });
+}
+
+export function mapTimeoutError(message = 'The request timed out'): TimeoutError {
+  return new TimeoutError(message);
 }

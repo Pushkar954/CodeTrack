@@ -36,6 +36,8 @@ export async function startServer(): Promise<void> {
     app.get('/api/v1/health/live', healthLiveness);
     app.get('/api/v1/health/ready', healthReadiness);
     app.get('/api/v1/health', (_req: Request, res: Response) => {
+      const requestId = (res.locals as Record<string, unknown>).requestId as string || 'unknown';
+      res.set('X-Request-ID', requestId);
       res.status(200).json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });
     });
 
@@ -49,24 +51,27 @@ export async function startServer(): Promise<void> {
       console.log(`[Server] Running on port ${PORT} in ${config.NODE_ENV} mode`);
     });
 
-    const shutdown = async (signal: string) => {
+    const shutdown = async (signal: string): Promise<void> => {
       console.log(`\n[Server] ${signal} received. Shutting down...`);
-      server.close(async () => {
-        await closeDB();
-        console.log('[Server] Process terminated.');
-        process.exit(0);
+      await new Promise<void>((resolve) => {
+        server.close(() => {
+          void closeDB();
+          console.log('[Server] Process terminated.');
+          resolve();
+        });
       });
+      process.exit(0);
     };
 
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => { void shutdown('SIGTERM'); });
+    process.on('SIGINT', () => { void shutdown('SIGINT'); });
     process.on('uncaughtException', (err) => {
-      console.error('[Server] Uncaught Exception:', err.message);
-      shutdown('uncaughtException');
+      console.error('[Server] Uncaught Exception:', err.message, err.stack);
+      void shutdown('uncaughtException');
     });
     process.on('unhandledRejection', (reason) => {
       console.error('[Server] Unhandled Rejection:', reason);
-      shutdown('unhandledRejection');
+      void shutdown('unhandledRejection');
     });
   } catch (error) {
     console.error('[Server] Failed to start:', error);

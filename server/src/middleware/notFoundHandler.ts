@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../errors/appError';
+import { NotFoundError } from '../errors/appError.js';
 
 export function notFoundHandler(req: Request, _res: Response, next: NextFunction): void {
-  const message = "Can't find " + req.originalUrl + " on this server";
-  next(new AppError(message, 404, 'NOT_FOUND'));
+  const error = new NotFoundError(`Can't find ${req.originalUrl} on this server`);
+  next(error);
 }

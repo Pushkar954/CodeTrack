@@ -1,7 +1,11 @@
 import { z } from 'zod';
+import { Response, NextFunction } from 'express';
+import { ValidationError } from '../errors/appError.js';
+import { ErrorDetail } from '@goalforge/shared';
+import { AuthRequest } from '../types/auth.js';
 
 export function createValidationMiddleware<T extends z.ZodTypeAny>(schema: T) {
-  return (req: any, _res: any, next: any): void => {
+  return (req: AuthRequest, _res: Response, next: NextFunction): void => {
     const result = schema.safeParse({
       body: req.body,
       query: req.query,
@@ -9,21 +13,16 @@ export function createValidationMiddleware<T extends z.ZodTypeAny>(schema: T) {
     });
 
     if (!result.success) {
-      const details = result.error.issues.map((issue: any) => ({
-        field: issue.path.join('.'),
-        message: issue.message,
-      }));
-      const error = new Error('Validation failed') as any;
-      error.details = details;
-      error.statusCode = 400;
-      error.code = 'VALIDATION_ERROR';
+      const details: ErrorDetail[] = result.error.issues.map((issue) => ({ field: issue.path.join('.'), message: issue.message } as unknown as ErrorDetail));
+      const error = new ValidationError('The request data is invalid', details as unknown as Record<string, unknown>);
       next(error);
       return;
     }
 
-    req.body = result.data.body;
-    req.query = result.data.query;
-    req.params = result.data.params;
+    const data = result.data as { body: unknown; query: unknown; params: unknown };
+    req.body = data.body as Record<string, unknown>;
+    req.query = data.query as Record<string, unknown>;
+    req.params = data.params as Record<string, unknown>;
     next();
   };
 }
